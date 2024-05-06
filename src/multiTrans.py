@@ -24,6 +24,7 @@ from transformers.models.encoder_decoder.configuration_encoder_decoder import En
 import warnings
 import copy
 import numpy as np
+from dataclasses import dataclass
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
@@ -337,7 +338,7 @@ class TCRDataset(data.Dataset):
 
 
 ### MODELING
-
+@dataclass
 class ClassifCausalLMOutputWithCrossAttentions(ModelOutput):
     lm_loss: Optional[torch.FloatTensor] = None
     lossCLS: Optional[torch.FloatTensor] = None
@@ -512,16 +513,16 @@ class TulipPetal(BertPreTrainedModel):
 
 
 
-
+@dataclass
 class ED_LMOutput(ModelOutput):
     clf_loss: Optional[torch.FloatTensor] = None
     clf_logits: Optional[torch.FloatTensor] = None
-    decoder_outputsA = None
-    encoder_outputsA = None
-    decoder_outputsB = None
-    encoder_outputsB = None
-    decoder_outputsE = None
-    encoder_outputsE = None
+    decoder_outputsA: Any = None
+    encoder_outputsA: Any  = None
+    decoder_outputsB: Any = None
+    encoder_outputsB: Any = None
+    decoder_outputsE: Any = None
+    encoder_outputsE: Any = None
 
 
 logger = logging.get_logger(__name__)
@@ -1069,7 +1070,7 @@ class Tulip(PreTrainedModel):
 
         else:
             return ED_LMOutput(
-                loss = lossCLS,
+                clf_loss = lossCLS,
                 clf_logits=logits,
                 encoder_outputsA = encoder_outputsA,
                 decoder_outputsA = decoder_outputsA,
