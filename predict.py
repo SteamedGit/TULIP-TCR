@@ -15,8 +15,9 @@ import torch
 from transformers.models.encoder_decoder.configuration_encoder_decoder import EncoderDecoderConfig
 from src.multiTrans import TulipPetal, TCRDataset, BertLastPooler, unsupervised_auc, train_unsupervised, eval_unsupervised, MyMasking, Tulip, get_logscore
 
-import argparse
+from safetensors.torch import load_model, save_model
 
+import argparse
 
 
 
@@ -153,8 +154,13 @@ def main():
 
     model = Tulip(encoderA=encoderA,encoderB=encoderB,encoderE=encoderE, decoderA=decoderA, decoderB=decoderB, decoderE=decoderE)
     if torch.cuda.is_available():
-        checkpoint = torch.load(args.load)
-        model.load_state_dict(checkpoint)
+        #checkpoint = torch.load(args.load)
+        if "safetensors" in args.load:
+            load_model(model,args.load)
+        else:
+            checkpoint = torch.load(args.load)
+            model.load_state_dict(checkpoint)
+        #model.load_state_dict(checkpoint)
         
     else:
         checkpoint = torch.load(args.load, map_location=torch.device('cpu'))
