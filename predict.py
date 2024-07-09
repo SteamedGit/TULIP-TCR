@@ -63,6 +63,12 @@ def main():
         type=int,
         help="batch_size" ,
     )
+    parser.add_argument(
+        "--mhc_tokenizer",
+        default="mhctok/",
+        type=str,
+        help="Tokenizer for the mhcs. If trained with noMHC must use nomhctok."
+    )
 
     args = parser.parse_args()
 
@@ -106,7 +112,7 @@ def main():
         ],
     )
 
-    mhctok = AutoTokenizer.from_pretrained("mhctok/")
+    mhctok = AutoTokenizer.from_pretrained(args.mhc_tokenizer)#("mhctok/")
     vocabsize = len(tokenizer._tokenizer.get_vocab())
     mhcvocabsize = len(mhctok._tokenizer.get_vocab())
     print(mhcvocabsize)
