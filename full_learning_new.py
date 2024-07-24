@@ -33,15 +33,15 @@ from transformers.utils import add_start_docstrings, add_start_docstrings_to_mod
 from transformers.models.encoder_decoder.configuration_encoder_decoder import EncoderDecoderConfig
 import warnings
 from torch.profiler import profile, record_function, ProfilerActivity
-import wandb
+#import wandb
 
 import argparse
 
 
 
-from wandb_osh.hooks import TriggerWandbSyncHook
+#from wandb_osh.hooks import TriggerWandbSyncHook
 
-wandb.login()
+#wandb.login()
 
 
 torch.manual_seed(0)
@@ -56,7 +56,7 @@ def toy_dataset(data, cutoff=100):
 
 
 def main():
-    trigger_sync = TriggerWandbSyncHook()
+    #trigger_sync = TriggerWandbSyncHook()
     parser = argparse.ArgumentParser()
 
     # Required parameters
@@ -132,8 +132,8 @@ def main():
 
     from src.multiTrans import TulipPetal, TCRDataset, BertLastPooler, unsupervised_auc, train_unsupervised, eval_unsupervised, MyMasking, Tulip, get_auc_mi
 
-
-    wandb.login()
+#python full_learning_new.py --train_dir data/mhc1_tulip_tcr_v2_hits_only_train.csv --test_dir data/mhc1_tulip_tcr_v2_5to1_allele_and_cdr3b_tune_subset.csv --modelconfig configs/shallow0_decoupled.config.json --save tim_models/medium_skip_MIS/ --batch_size 128 --skipMiss
+    #wandb.login()
     torch.manual_seed(0)
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print("Using device:", device,file=sys.stdout)
@@ -284,10 +284,10 @@ def main():
     }
     config_dict.update(modelconfig)
 
-    wandb.init(project="generative", entity="barthelemymp", config=config_dict)
-    trigger_sync() 
-    wandb.config.update(config_dict) 
-    trigger_sync() 
+    # wandb.init(project="generative", entity="barthelemymp", config=config_dict)
+    # trigger_sync() 
+    # wandb.config.update(config_dict) 
+    # trigger_sync() 
 
     target_peptidesFinal = pd.read_csv(test_path)["peptide"].value_counts().index
 
@@ -307,21 +307,23 @@ def main():
 
                 aucami, aucbmi = get_auc_mi(model, datasetPetideSpecific, mask_mhc=True, mask_peptide=True, mask_paired=False)
                 
-                wandb.log({target_peptide+"_a":auca, target_peptide+"_b":aucb,target_peptide+"_mia":aucami, target_peptide+"_mib":aucbmi,target_peptide+"_e":auce, "epochT":epoch})#target_peptide+"_acca":acca,target_peptide+"_accb":accb,
-                trigger_sync()
+                print({target_peptide+"_a":auca, target_peptide+"_b":aucb,target_peptide+"_mia":aucami, target_peptide+"_mib":aucbmi,target_peptide+"_e":auce, "epochT":epoch})
+                #wandb.log({target_peptide+"_a":auca, target_peptide+"_b":aucb,target_peptide+"_mia":aucami, target_peptide+"_mib":aucbmi,target_peptide+"_e":auce, "epochT":epoch})#target_peptide+"_acca":acca,target_peptide+"_accb":accb,
+                #trigger_sync()
 
                 aucelist.append(auce)
                 aucalist.append(auca)
                 aucblist.append(aucb)
-            wandb.log({"avg_e":np.mean(aucelist), "avg_a":np.mean(aucalist),"avg_b":np.mean(aucblist), "epochT":epoch})
-            trigger_sync() 
+            print({"avg_e":np.mean(aucelist), "avg_a":np.mean(aucalist),"avg_b":np.mean(aucblist), "epochT":epoch})
+            #wandb.log({"avg_e":np.mean(aucelist), "avg_a":np.mean(aucalist),"avg_b":np.mean(aucblist), "epochT":epoch})
+            #trigger_sync() 
 
         print("Starting epoch", epoch+1, file=sys.stdout)
         sys.stdout.flush()
         epoch_lm_lossA, epoch_lm_lossB, epoch_lm_lossE, epoch_mlm_lossA, epoch_mlm_lossB, epoch_mlm_lossE = train_unsupervised(model, optimizer, masker, train_dataloaderFull, criterion)
         print(epoch_lm_lossA, epoch_lm_lossB, epoch_lm_lossE, epoch_mlm_lossA, epoch_mlm_lossB, epoch_mlm_lossE,file=sys.stdout)
-        wandb.log({"epoch_lm_lossAu": epoch_lm_lossA, "epoch_lm_lossBu":epoch_lm_lossB ,"epoch_lm_lossEu":epoch_lm_lossE ,"epoch_mlm_lossAu":epoch_mlm_lossA ,"epoch_mlm_lossBu":epoch_mlm_lossB ,"epoch_mlm_lossEu":epoch_mlm_lossE, "epochT":epoch})
-        trigger_sync()
+        #wandb.log({"epoch_lm_lossAu": epoch_lm_lossA, "epoch_lm_lossBu":epoch_lm_lossB ,"epoch_lm_lossEu":epoch_lm_lossE ,"epoch_mlm_lossAu":epoch_mlm_lossA ,"epoch_mlm_lossBu":epoch_mlm_lossB ,"epoch_mlm_lossEu":epoch_mlm_lossE, "epochT":epoch})
+        #trigger_sync()
 
         if epoch%10==0:
             if args.save:
