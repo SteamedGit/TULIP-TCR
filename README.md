@@ -1,14 +1,50 @@
-# TULIP-TCR
-## This repo is here to supplement the paper: TULIP — a Transformer based Unsupervised Language model for Interacting Peptides and T-cell receptors that generalizes to unseen epitopes
-The accurate prediction of binding between T-cell receptors (TCR) and their cognate epitopes is key to understanding the adaptive immune response and developing immunotherapies. Current methods face two significant limitations: the shortage of comprehensive high-quality data and the bias introduced by the selection of the negative training data commonly used in the supervised learning approaches. We propose a novel method, TULIP, that addresses both limitations by leveraging incomplete data and unsupervised learning and using the transformer architecture of language models. Our model is flexible and integrates all possible data sources, regardless of their quality or completeness. We demonstrate the existence of a bias introduced by the sampling procedure used in previous supervised approaches, emphasizing the need for an unsupervised approach. TULIP recognizes the specific TCRs binding an epitope, performing well on unseen epitopes. Our model outperforms state-of-the-art models and offers a promising direction for the development of more accurate TCR epitope recognition models.
+# TULIP-TCR Fork
+
+## This repo is a fork of TULIP-TCR with requirements and various helper scripts. See the [original repo](https://github.com/barthelemymp/TULIP-TCR) for more info
+
+## Installation
+The version of python and packages are not documented in the original repo. I've supplied a requirements file that worked for Python 3.10.14.
 
 
-## src
-The src folder contains the code for the model.
+## Usage Guide
+
+### Data
+Your training data needs these columns
+```
+MHC,allele_processed,peptide,CDR3a,CDR3b
+```
+And any eval sets also need a ```binder``` column
+Missing values are indicated with a ```<MIS>```
+### Training
+To train a model from scratch use
+```
+python full_learning_new.py --train_dir <path to train csv> --test_dir <path to an eval csv> --modelconfig <path to a decoupled config> --save <checkpoint save directory> --batch_size b 
+```
 
 
-## model_weights
-model weights are in the model_weights folder. You will find this the model used for the plots on HLA-A02:01 of the paper.
+### Predictions
+The prediction script computes scores and ranks for each peptide in your eval set individually and writes them into seperate csvs in a specified folder.
+
+```
+python predict.py --test_dir <path to csv> --load <path to .bin or .safetensors> --modelconfig <path to model config> --output <folder to write peptide score csvs to> --batch_size b
+```
+
+The ```--mhc_tokenizer``` arg is to accomodate models trained with --noMHC, these need the ```nomhctok``` tokenizer
+
+Note that there is incompatibility between the configs that TULIP-TCR uses for training vs predictions. For example, the default config for training appears to be ```configs/shallow0_decoupled.config.json```, but this config cannot be used with the supplied predictions script. Rather you have to use ```configs/shallow.config.json```. The same goes for the medium configs.
+
+Example usage:
+```
+python predict.py --test_dir data/VDJ_test_2.csv --load model_weights/pytorch_model.bin --modelconfig configs/shallow.config.json --output data_output/pretrained --batch_size 512 
+```
+
+### Evaluation
+To calculate global auc roc you can use 
+
+```calculate_global_auc.py --predictions_dir <path to score csvs> --targets_dir <path to eval data>```
+
+
+## From the original readme
 
 ## data
 the data folder contains the data to reproduce results of the paper.
@@ -55,10 +91,6 @@ TO DO: predict HLA indepndantly and remove it from epitope prediction.
 `--masking_proba`: it is a new form of regularization (not used in the paper). default is 0.0. If not null, this is the proba to randomly mask the alpha or the beta chain during training. This is made to mitigate some experimental biases on bulk vs single cell. (for example, if for a peptide we only have TCR missing their alpha chain, we would like to avoid TULIP to learn a signal between missing alpha chain and this peptide). This regularization was proven usefull when using TULIP has a geneartive model. 
 
 
-
-
-## Sampling new TCR ?
-Understanding how to best sample using TULIP, is still a work in progress. Sampling functions are though available.
 
 
 
