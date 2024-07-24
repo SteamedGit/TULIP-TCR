@@ -11,7 +11,7 @@ The version of python and packages are not documented in the original repo. I've
 ### Data
 Your training data needs these columns
 ```
-MHC,allele_processed,peptide,CDR3a,CDR3b
+peptide,MHC,CDR3b,CDR3a
 ```
 And any eval sets also need a ```binder``` column
 Missing values are indicated with a ```<MIS>```
