@@ -186,7 +186,7 @@ def main():
         results["peptide"] = target_peptide
         results["rank"] = ranks
         results["score"] = scores
-        results.to_csv(args.output + target_peptide+".csv")
+        results.to_csv(args.output+"/" + target_peptide+".csv")
         if len(np.unique(datasetPetideSpecific.binder))==2:
             auce = roc_auc_score(datasetPetideSpecific.binder, ranks)
             print(auce)
